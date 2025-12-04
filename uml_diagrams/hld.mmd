@@ -1,0 +1,61 @@
+flowchart TD
+    %% AI-Powered RFP Management System - Production HLD Flow
+    
+    A[User Dashboard] --> B{Choose Action}
+    
+    %% RFP Creation with Size Validation
+    B -->|Create RFP| C[Enter Description]
+    C --> C1[Validate Size < 50KB]
+    C1 -->|Valid| D[Groq AI - Max 100KB JSON]
+    C1 -->|Too Large| C2[Show Size Error]
+    D --> E[Save RFP to DB]
+    
+    %% Vendor Management
+    B -->|Add Vendors| F[Vendor Form]
+    F --> G[Save Vendor to DB]
+    
+    %% Send RFP with Tracking
+    B -->|Send RFP| H[Select Vendors]
+    H --> I[Send Emails + Message ID]
+    I --> I1[Update RFP_VENDORS Status]
+    
+    %% Receive Responses with Size Control
+    J[Email Polling Service] --> K[New Response?]
+    K -->|Yes| K1[Validate Email < 5MB]
+    K -->|No| J
+    K1 -->|Valid| L[Parse with AI - Max 500KB JSON]
+    K1 -->|Too Large| K2[Truncate + Save Note]
+    L --> M[Save Proposal to DB]
+    K2 --> M
+    
+    %% View Comparison
+    B -->|View Results| N[Generate AI Comparison]
+    N --> O[Show Results Table]
+    
+    %% Database with JSONB
+    E --> P[(PostgreSQL with JSONB)]
+    G --> P
+    I1 --> P
+    M --> P
+    
+    %% External Services
+    D -.->|Size-Limited Prompts| Q[Groq API]
+    L -.->|Size-Limited Prompts| Q
+    N -.->|Comparison Request| Q
+    I -.->|SMTP + Message ID| R[Email Service]
+    J -.->|IMAP Polling| R
+    
+    %% Error Handling
+    C2 --> C
+    K2 --> S[Log Truncation Event]
+    
+    %% Styling
+    classDef validation fill:#ffeb3b
+    classDef error fill:#f44336
+    classDef database fill:#4caf50
+    classDef external fill:#2196f3
+    
+    class C1,K1 validation
+    class C2,K2,S error
+    class P database
+    class Q,R external

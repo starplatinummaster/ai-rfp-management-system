@@ -1,0 +1,67 @@
+erDiagram
+    %% AI-Powered RFP Management System - Balanced ER Diagram
+    
+    USERS {
+        int id PK
+        string username
+        string email
+        string password_hash
+        datetime created_at
+        datetime updated_at
+    }
+    
+    RFPS {
+        int id PK
+        int user_id FK
+        string title
+        text description
+        json structured_requirements
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+    
+    VENDORS {
+        int id PK
+        int user_id FK
+        string name
+        string email
+        string phone
+        string category
+        datetime created_at
+        datetime updated_at
+    }
+    
+    RFP_VENDORS {
+        int id PK
+        int rfp_id FK
+        int vendor_id FK
+        datetime sent_at
+        string email_status
+        string email_message_id
+        datetime created_at
+    }
+    
+    PROPOSALS {
+        int id PK
+        int rfp_id FK
+        int vendor_id FK
+        text raw_email_content
+        string email_subject
+        json structured_proposal
+        json ai_scores
+        string processing_status
+        datetime received_at
+        datetime created_at
+        datetime updated_at
+    }
+    
+    %% Relationships
+    USERS ||--o{ RFPS : "creates"
+    USERS ||--o{ VENDORS : "manages"
+    
+    RFPS ||--o{ RFP_VENDORS : "sent_to"
+    VENDORS ||--o{ RFP_VENDORS : "receives"
+    
+    RFPS ||--o{ PROPOSALS : "receives_for"
+    VENDORS ||--o{ PROPOSALS : "submits"
