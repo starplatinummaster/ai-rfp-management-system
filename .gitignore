@@ -143,3 +143,4 @@ vite.config.ts.timestamp-*
 
 #doc files
 *.pdf
+STEPS.md
