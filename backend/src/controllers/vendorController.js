@@ -14,6 +14,9 @@ class VendorController {
       const vendor = await vendorService.createVendor(vendorData);
       res.status(201).json(vendor);
     } catch (error) {
+      if (error.message.includes('already exists')) {
+        return res.status(409).json({ error: error.message });
+      }
       res.status(500).json({ error: error.message });
     }
   }

@@ -31,7 +31,7 @@ class Proposal {
   }
 
   static async create(proposalData) {
-    const { rfp_id, vendor_id, raw_email_content, email_subject, processing_status = 'pending' } = proposalData;
+    const { rfp_id, vendor_id, raw_email_content, email_subject, processing_status = 'received' } = proposalData;
     const result = await pool.query(
       'INSERT INTO proposals (rfp_id, vendor_id, raw_email_content, email_subject, processing_status, received_at) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) RETURNING *',
       [rfp_id, vendor_id, raw_email_content, email_subject, processing_status]

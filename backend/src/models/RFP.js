@@ -32,10 +32,33 @@ class RFP {
   }
 
   async update(rfpData) {
-    const { title, description, structured_requirements, status } = rfpData;
+    const fields = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (rfpData.title !== undefined) {
+      fields.push(`title = $${paramCount++}`);
+      values.push(rfpData.title);
+    }
+    if (rfpData.description !== undefined) {
+      fields.push(`description = $${paramCount++}`);
+      values.push(rfpData.description);
+    }
+    if (rfpData.structured_requirements !== undefined) {
+      fields.push(`structured_requirements = $${paramCount++}`);
+      values.push(rfpData.structured_requirements);
+    }
+    if (rfpData.status !== undefined) {
+      fields.push(`status = $${paramCount++}`);
+      values.push(rfpData.status);
+    }
+
+    fields.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(this.id);
+
     const result = await pool.query(
-      'UPDATE rfps SET title = $1, description = $2, structured_requirements = $3, status = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING *',
-      [title, description, structured_requirements, status, this.id]
+      `UPDATE rfps SET ${fields.join(', ')} WHERE id = $${paramCount} RETURNING *`,
+      values
     );
     Object.assign(this, result.rows[0]);
     return this;

@@ -28,7 +28,7 @@ class EmailController {
         vendor_id: vendorId,
         raw_email_content: text || html,
         email_subject: subject,
-        processing_status: 'pending'
+        processing_status: 'received'
       };
 
       const proposal = await proposalService.createProposal(proposalData);

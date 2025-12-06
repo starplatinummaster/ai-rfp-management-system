@@ -49,6 +49,11 @@ class Vendor {
     const result = await pool.query('SELECT * FROM vendors WHERE user_id = $1 AND category = $2', [userId, category]);
     return result.rows.map(row => new Vendor(row));
   }
+
+  static async findByUserIdAndEmail(userId, email) {
+    const result = await pool.query('SELECT * FROM vendors WHERE user_id = $1 AND email = $2', [userId, email]);
+    return result.rows[0] ? new Vendor(result.rows[0]) : null;
+  }
 }
 
 module.exports = Vendor;

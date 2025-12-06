@@ -2,6 +2,11 @@ const Vendor = require('../models/Vendor');
 
 class VendorService {
   async createVendor(vendorData) {
+    // Check if vendor with same email already exists for this user
+    const existing = await Vendor.findByUserIdAndEmail(vendorData.user_id, vendorData.email);
+    if (existing) {
+      throw new Error(`Vendor with email ${vendorData.email} already exists`);
+    }
     return await Vendor.create(vendorData);
   }
 

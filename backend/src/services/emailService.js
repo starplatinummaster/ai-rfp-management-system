@@ -191,7 +191,7 @@ class EmailService {
         vendor_id: vendorId,
         raw_email_content: parsedEmail.text || parsedEmail.html,
         email_subject: parsedEmail.subject,
-        processing_status: 'pending'
+        processing_status: 'received'
       };
 
       const proposal = await proposalService.createProposal(proposalData);
@@ -257,7 +257,7 @@ class EmailService {
           rfp_id: rfpId,
           vendor_id: vendor.id,
           email_message_id: messageId,
-          email_status: 'sending'
+          email_status: 'pending'
         });
 
         const result = await this.sendRFPEmail(vendor, vendor.rfp, messageId);
