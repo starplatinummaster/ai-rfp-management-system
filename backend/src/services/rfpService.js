@@ -6,15 +6,15 @@ const emailService = require('./emailService');
 
 class RFPService {
   async createRFP(userId, description) {
-    // Generate structured requirements using AI
-    const structuredRequirements = await aiService.generateRFPStructure(description);
-    
-    // Extract title from description (first 50 chars)
-    const title = description.substring(0, 50).trim() + (description.length > 50 ? '...' : '');
+    // Generate structured requirements and title using AI
+    const [structuredRequirements, title] = await Promise.all([
+      aiService.generateRFPStructure(description),
+      aiService.generateRFPTitle(description)
+    ]);
     
     const rfpData = {
       user_id: userId,
-      title,
+      title: title.substring(0, 100), // Limit to 100 chars max
       description,
       structured_requirements: JSON.stringify(structuredRequirements),
       status: 'draft'
@@ -35,6 +35,12 @@ class RFPService {
     const rfp = await RFP.findById(id);
     if (!rfp) throw new Error('RFP not found');
     
+    // If description is updated, regenerate structured requirements
+    if (updateData.description && updateData.description !== rfp.description) {
+      const structuredRequirements = await aiService.generateRFPStructure(updateData.description);
+      updateData.structured_requirements = JSON.stringify(structuredRequirements);
+    }
+    
     return await rfp.update(updateData);
   }
 
@@ -54,8 +60,19 @@ class RFPService {
       vendorIds.map(id => Vendor.findById(id))
     );
     
+    // Parse structured_requirements if it's a string
+    const rfpData = {
+      ...rfp,
+      structured_requirements: typeof rfp.structured_requirements === 'string' 
+        ? rfp.structured_requirements 
+        : JSON.stringify(rfp.structured_requirements)
+    };
+    
     // Add RFP data to vendors for email generation
-    const vendorsWithRFP = vendors.map(vendor => ({ ...vendor, rfp }));
+    const vendorsWithRFP = vendors.map(vendor => ({ 
+      ...vendor, 
+      rfp: rfpData
+    }));
 
     // Send emails to all vendors
     const emailResults = await emailService.sendBulkRFPs(rfpId, vendorsWithRFP);

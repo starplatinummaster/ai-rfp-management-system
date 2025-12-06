@@ -35,7 +35,8 @@ CREATE TABLE vendors (
     phone VARCHAR(50),
     category VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, email) -- Prevent duplicate vendor emails per user
 );
 
 -- 4. RFP_VENDORS Junction Table
