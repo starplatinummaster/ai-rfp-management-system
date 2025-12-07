@@ -61,6 +61,7 @@ CREATE TABLE proposals (
     structured_proposal JSONB, -- AI-parsed proposal data (max 500KB)
     ai_scores JSONB, -- AI-generated scores and analysis
     processing_status VARCHAR(50) DEFAULT 'received' CHECK (processing_status IN ('received', 'processing', 'completed', 'failed')),
+    archived BOOLEAN DEFAULT FALSE, -- Marks proposals as archived when RFP is updated
     received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

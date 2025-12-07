@@ -1,0 +1,69 @@
+========================================
+MOCK DATA FOR TESTING ARCHIVE FEATURE
+========================================
+
+========================================
+NEW VENDOR
+========================================
+
+Vendor Name: Test Vendor Alpha
+Email: alpha@testvendor.com
+Phone: +91-99999-11111
+Category: Electronics
+
+========================================
+NEW RFP (ORIGINAL)
+========================================
+
+Description:
+Need 50 laptops: Intel i7, 32GB RAM, 1TB SSD, Windows 11 Pro. Budget Rs 75L, delivery in 45 days for school
+
+========================================
+PROPOSAL #1 (BEFORE UPDATE)
+========================================
+
+Vendor: Test Vendor Alpha
+
+Content:
+We can provide Dell Latitude laptops:
+- Price: Rs 72,50,000 total (Rs 1,45,000 per unit)
+- Delivery: 40 days from order
+- Payment: 50% advance, 50% on delivery
+- Warranty: 3 years comprehensive onsite
+
+========================================
+PROPOSAL #2 (BEFORE UPDATE)
+========================================
+
+Vendor: TechCorp Solutions
+
+Content:
+HP EliteBook laptops available:
+- Price: Rs 68,00,000 total (Rs 1,36,000 per unit)
+- Delivery: 30 days
+- Payment: Net 60 days (no advance required)
+- Warranty: 5 years comprehensive onsite + premium support + free training
+
+========================================
+UPDATED RFP
+========================================
+
+Description:
+Need 60 laptops: Intel i7, 32GB RAM, 1TB SSD, Windows 11 Pro. Budget Rs 90L, delivery in 30 days.
+
+========================================
+PROPOSAL #3 (AFTER UPDATE)
+========================================
+
+Vendor: Test Vendor Alpha
+
+Content:
+Updated proposal for 60 laptops:
+- Price: Rs 87,00,000 total (Rs 1,45,000 per unit)
+- Delivery: 28 days from order
+- Payment: 40% advance, 60% on delivery
+- Warranty: 3 years comprehensive + accidental damage protection
+
+========================================
+END OF MOCK DATA
+========================================

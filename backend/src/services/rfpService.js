@@ -39,9 +39,41 @@ class RFPService {
     if (updateData.description && updateData.description !== rfp.description) {
       const structuredRequirements = await aiService.generateRFPStructure(updateData.description);
       updateData.structured_requirements = JSON.stringify(structuredRequirements);
+      
+      // Archive old proposals if requested
+      if (updateData.archive_proposals) {
+        await this.archiveProposalsForRFP(id);
+      }
     }
     
+    // Remove archive_proposals flag before updating RFP
+    delete updateData.archive_proposals;
+    
     return await rfp.update(updateData);
+  }
+
+  async archiveProposalsForRFP(rfpId) {
+    const pool = require('../database');
+    
+    // Add 'archived' column to proposals if it doesn't exist (migration)
+    try {
+      await pool.query(`
+        ALTER TABLE proposals 
+        ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE
+      `);
+      console.log('Archived column ensured in proposals table');
+    } catch (error) {
+      console.log('Column archived may already exist:', error.message);
+    }
+    
+    // Mark all proposals for this RFP as archived (including NULL values)
+    const result = await pool.query(
+      'UPDATE proposals SET archived = TRUE WHERE rfp_id = $1 AND COALESCE(archived, FALSE) = FALSE',
+      [rfpId]
+    );
+    
+    console.log(`Archived ${result.rowCount} proposals for RFP ${rfpId}`);
+    return result.rowCount;
   }
 
   async deleteRFP(id) {
@@ -87,26 +119,65 @@ class RFPService {
     return await RFPVendor.findByRfpId(rfpId);
   }
 
-  async getRFPProposals(rfpId) {
+  async getRFPProposals(rfpId, includeArchived = false) {
     const rfp = await RFP.findById(rfpId);
     if (!rfp) throw new Error('RFP not found');
+    
+    if (includeArchived) {
+      const Proposal = require('../models/Proposal');
+      const [active, archived] = await Promise.all([
+        rfp.getProposals(),
+        Proposal.findArchivedByRfpId(rfpId)
+      ]);
+      return { active, archived };
+    }
     
     return await rfp.getProposals();
   }
 
-  async compareProposals(rfpId) {
+  async getArchivedProposals(rfpId) {
     const rfp = await RFP.findById(rfpId);
     if (!rfp) throw new Error('RFP not found');
     
-    const proposals = await rfp.getProposals();
-    const requirements = JSON.parse(rfp.structured_requirements);
-    
-    if (proposals.length === 0) {
-      throw new Error('No proposals found for comparison');
-    }
+    const Proposal = require('../models/Proposal');
+    return await Proposal.findArchivedByRfpId(rfpId);
+  }
 
-    const comparison = await aiService.compareProposals(proposals, requirements);
-    return comparison;
+  async compareProposals(rfpId) {
+    try {
+      const rfp = await RFP.findById(rfpId);
+      if (!rfp) throw new Error('RFP not found');
+      
+      const proposals = await rfp.getProposals();
+      console.log('Proposals fetched:', proposals.length);
+      
+      if (proposals.length === 0) {
+        return {
+          summary: 'No proposals have been received yet for this RFP.',
+          recommendation: null,
+          rankings: [],
+          proposals: []
+        };
+      }
+
+      let requirements;
+      try {
+        requirements = typeof rfp.structured_requirements === 'string' 
+          ? JSON.parse(rfp.structured_requirements) 
+          : rfp.structured_requirements;
+      } catch (e) {
+        console.error('Failed to parse requirements:', e);
+        requirements = {};
+      }
+
+      const comparison = await aiService.compareProposals(proposals, requirements);
+      comparison.proposals = proposals;
+      return comparison;
+    } catch (error) {
+      console.error('Error in compareProposals:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
   }
 }
 

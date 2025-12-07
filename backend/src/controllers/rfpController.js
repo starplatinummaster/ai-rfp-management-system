@@ -102,7 +102,8 @@ class RFPController {
   async getRFPProposals(req, res) {
     try {
       const { id } = req.params;
-      const proposals = await rfpService.getRFPProposals(id);
+      const includeArchived = req.query.include_archived === 'true';
+      const proposals = await rfpService.getRFPProposals(id, includeArchived);
       res.json(proposals);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -112,8 +113,20 @@ class RFPController {
   async compareProposals(req, res) {
     try {
       const { id } = req.params;
+      console.log('Comparing proposals for RFP:', id);
       const comparison = await rfpService.compareProposals(id);
       res.json(comparison);
+    } catch (error) {
+      console.error('Controller error:', error.message);
+      res.status(500).json({ error: error.message, details: error.stack });
+    }
+  }
+
+  async getArchivedProposals(req, res) {
+    try {
+      const { id } = req.params;
+      const archivedProposals = await rfpService.getArchivedProposals(id);
+      res.json(archivedProposals);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

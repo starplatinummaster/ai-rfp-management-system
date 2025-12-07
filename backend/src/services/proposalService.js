@@ -23,8 +23,17 @@ class ProposalService {
     if (!rfp) throw new Error('RFP not found');
 
     try {
+      // Parse requirements safely
+      let requirements;
+      if (typeof rfp.structured_requirements === 'string') {
+        requirements = JSON.parse(rfp.structured_requirements);
+      } else if (typeof rfp.structured_requirements === 'object') {
+        requirements = rfp.structured_requirements;
+      } else {
+        requirements = {};
+      }
+
       // Parse proposal using AI
-      const requirements = JSON.parse(rfp.structured_requirements);
       const structuredProposal = await aiService.parseProposal(
         proposal.raw_email_content, 
         requirements
@@ -32,6 +41,13 @@ class ProposalService {
 
       // Score the proposal
       const aiScores = await aiService.scoreProposal(structuredProposal, requirements);
+      
+      console.log('=== AI SCORING RESULT ===');
+      console.log('Proposal ID:', proposalId);
+      console.log('Structured Proposal:', JSON.stringify(structuredProposal, null, 2));
+      console.log('RFP Requirements:', JSON.stringify(requirements, null, 2));
+      console.log('AI Scores:', JSON.stringify(aiScores, null, 2));
+      console.log('========================');
 
       // Update proposal with parsed data
       await proposal.update({
@@ -42,6 +58,7 @@ class ProposalService {
 
       return proposal;
     } catch (error) {
+      console.error('Error processing proposal:', error);
       await proposal.update({ processing_status: 'failed' });
       throw error;
     }
@@ -65,12 +82,37 @@ class ProposalService {
   }
 
   async reprocessProposal(id) {
-    const proposal = await Proposal.findById(id);
-    if (!proposal) throw new Error('Proposal not found');
+    try {
+      const proposal = await Proposal.findById(id);
+      if (!proposal) throw new Error('Proposal not found');
 
-    // Reset status and reprocess
-    await proposal.update({ processing_status: 'pending' });
-    return await this.processProposal(id);
+      // Don't update status, just reprocess directly
+      return await this.processProposal(id);
+    } catch (error) {
+      console.error('Reprocess error for proposal', id, ':', error.message);
+      console.error('Full error:', error);
+      throw error;
+    }
+  }
+
+  async reprocessAllForRFP(rfpId) {
+    console.log('Fetching proposals for RFP:', rfpId);
+    const proposals = await Proposal.findByRfpId(rfpId);
+    console.log('Found proposals:', proposals.length);
+    
+    const results = await Promise.allSettled(
+      proposals.map(proposal => {
+        console.log('Reprocessing proposal:', proposal.id);
+        return this.reprocessProposal(proposal.id);
+      })
+    );
+
+    return {
+      total: proposals.length,
+      successful: results.filter(r => r.status === 'fulfilled').length,
+      failed: results.filter(r => r.status === 'rejected').length,
+      results
+    };
   }
 }
 

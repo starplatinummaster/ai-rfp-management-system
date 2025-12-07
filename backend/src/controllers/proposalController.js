@@ -13,6 +13,12 @@ class ProposalController {
 
       const proposalData = { rfp_id, vendor_id, raw_email_content, email_subject };
       const proposal = await proposalService.createProposal(proposalData);
+      
+      // Auto-process with AI in background
+      proposalService.processProposal(proposal.id).catch(error => {
+        console.error('Background AI processing failed:', error);
+      });
+      
       res.status(201).json(proposal);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -95,6 +101,21 @@ class ProposalController {
       if (error.message === 'Proposal not found') {
         return res.status(404).json({ error: error.message });
       }
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async reprocessAllForRFP(req, res) {
+    try {
+      const { rfpId } = req.params;
+      console.log('=== REPROCESS ALL ENDPOINT HIT ===');
+      console.log('RFP ID:', rfpId);
+      const results = await proposalService.reprocessAllForRFP(rfpId);
+      console.log('Reprocess results:', results);
+      console.log('==================================');
+      res.json(results);
+    } catch (error) {
+      console.error('Reprocess error:', error);
       res.status(500).json({ error: error.message });
     }
   }
