@@ -16,7 +16,7 @@ NEW RFP (ORIGINAL)
 ========================================
 
 Description:
-Need 50 laptops: Intel i7, 32GB RAM, 1TB SSD, Windows 11 Pro. Budget Rs 75L, delivery in 45 days.
+Need 50 laptops: Intel i7, 32GB RAM, 1TB SSD, Windows 11 Pro. Budget Rs 75L, delivery in 45 days for school
 
 ========================================
 PROPOSAL #1 (BEFORE UPDATE)
@@ -39,10 +39,10 @@ Vendor: TechCorp Solutions
 
 Content:
 HP EliteBook laptops available:
-- Price: Rs 70,00,000 total (Rs 1,40,000 per unit)
-- Delivery: 35 days
-- Payment: Net 30 days
-- Warranty: 3 years onsite + premium support
+- Price: Rs 68,00,000 total (Rs 1,36,000 per unit)
+- Delivery: 30 days
+- Payment: Net 60 days (no advance required)
+- Warranty: 5 years comprehensive onsite + premium support + free training
 
 ========================================
 UPDATED RFP
