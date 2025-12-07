@@ -1,7 +1,8 @@
 import { formatPhone } from '../../utils/formatters';
 import Card from '../common/Card';
+import Button from '../common/Button';
 
-const VendorList = ({ vendors, onSelectVendor, selectedVendors = [] }) => {
+const VendorList = ({ vendors, onSelectVendor, selectedVendors = [], sentVendorIds = [], onEdit, onDelete }) => {
   if (!vendors || vendors.length === 0) {
     return (
       <Card>
@@ -14,6 +15,7 @@ const VendorList = ({ vendors, onSelectVendor, selectedVendors = [] }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {vendors.map((vendor) => {
         const isSelected = selectedVendors.includes(vendor.id);
+        const alreadySent = sentVendorIds.includes(vendor.id);
         
         return (
           <Card
@@ -24,9 +26,39 @@ const VendorList = ({ vendors, onSelectVendor, selectedVendors = [] }) => {
             onClick={() => onSelectVendor && onSelectVendor(vendor.id)}
           >
             <div className="flex items-start justify-between mb-3">
-              <h3 className="text-lg font-semibold text-gray-800">{vendor.name}</h3>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-800">{vendor.name}</h3>
+                {alreadySent && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded mt-1 inline-block">
+                    ✓ Already Sent
+                  </span>
+                )}
+              </div>
               {isSelected && <span className="text-blue-500 text-xl">✓</span>}
             </div>
+            
+            {(onEdit || onDelete) && (
+              <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
+                {onEdit && (
+                  <Button
+                    variant="secondary"
+                    onClick={(e) => { e.stopPropagation(); onEdit(vendor); }}
+                    className="text-xs py-1 px-3"
+                  >
+                    Edit
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="secondary"
+                    onClick={(e) => { e.stopPropagation(); onDelete(vendor); }}
+                    className="text-xs py-1 px-3 bg-red-100 hover:bg-red-200 text-red-700"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            )}
             
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center gap-2">

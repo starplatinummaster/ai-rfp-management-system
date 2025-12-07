@@ -1,4 +1,4 @@
-const Input = ({ label, type = 'text', value, onChange, placeholder, required = false, className = '' }) => {
+const Input = ({ label, type = 'text', name, value, onChange, placeholder, required = false, className = '' }) => {
   return (
     <div className={`mb-4 ${className}`}>
       {label && (
@@ -8,6 +8,7 @@ const Input = ({ label, type = 'text', value, onChange, placeholder, required = 
       )}
       <input
         type={type}
+        name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}

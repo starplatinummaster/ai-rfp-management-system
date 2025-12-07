@@ -1,7 +1,8 @@
 import { formatDate, getStatusColor } from '../../utils/formatters';
 import Card from '../common/Card';
+import Button from '../common/Button';
 
-const RFPList = ({ rfps, onSelectRFP }) => {
+const RFPList = ({ rfps, onSelectRFP, onEdit }) => {
   if (!rfps || rfps.length === 0) {
     return (
       <Card>
@@ -13,17 +14,9 @@ const RFPList = ({ rfps, onSelectRFP }) => {
   return (
     <div className="space-y-4">
       {rfps.map((rfp) => (
-        <div
-          key={rfp.id}
-          onClick={(e) => {
-            e.stopPropagation();
-            console.log('RFP clicked:', rfp.id);
-            onSelectRFP && onSelectRFP(rfp);
-          }}
-          className="cursor-pointer"
-        >
         <Card 
-          className="hover:shadow-xl hover:border-indigo-300 border-2 border-transparent transition-all duration-200 active:scale-[0.99]"
+          key={rfp.id}
+          className="hover:shadow-lg border-2 border-transparent transition-all duration-200"
         >
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -35,14 +28,31 @@ const RFPList = ({ rfps, onSelectRFP }) => {
                   {rfp.status.toUpperCase()}
                 </span>
               </div>
+              <div className="mt-3 flex gap-2">
+                {onEdit && (
+                  <Button
+                    variant="secondary"
+                    onClick={(e) => { e.stopPropagation(); onEdit(rfp); }}
+                    className="text-xs py-1 px-3"
+                  >
+                    Edit & Resend
+                  </Button>
+                )}
+                {onSelectRFP && (
+                  <Button
+                    onClick={(e) => { e.stopPropagation(); onSelectRFP(rfp); }}
+                    className="text-xs py-1 px-3"
+                  >
+                    📧 Send to Vendors
+                  </Button>
+                )}
+              </div>
             </div>
             <div className="text-right flex flex-col items-center gap-2">
               <span className="text-3xl">📝</span>
-              <span className="text-xs text-indigo-600 font-semibold">Click to Send</span>
             </div>
           </div>
         </Card>
-        </div>
       ))}
     </div>
   );

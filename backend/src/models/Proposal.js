@@ -25,6 +25,19 @@ class Proposal {
       FROM proposals p 
       JOIN vendors v ON p.vendor_id = v.id 
       WHERE p.rfp_id = $1 
+        AND COALESCE(p.archived, FALSE) = FALSE
+      ORDER BY p.received_at DESC
+    `, [rfpId]);
+    return result.rows.map(row => new Proposal(row));
+  }
+
+  static async findArchivedByRfpId(rfpId) {
+    const result = await pool.query(`
+      SELECT p.*, v.name as vendor_name, v.email as vendor_email 
+      FROM proposals p 
+      JOIN vendors v ON p.vendor_id = v.id 
+      WHERE p.rfp_id = $1 
+        AND p.archived = TRUE
       ORDER BY p.received_at DESC
     `, [rfpId]);
     return result.rows.map(row => new Proposal(row));

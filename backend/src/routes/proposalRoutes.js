@@ -13,5 +13,6 @@ router.delete('/:id', proposalController.deleteProposal);
 router.post('/:id/process', proposalController.processProposal);
 router.post('/:id/reprocess', proposalController.reprocessProposal);
 router.post('/process-pending', proposalController.processPendingProposals);
+router.post('/rfp/:rfpId/reprocess-all', proposalController.reprocessAllForRFP);
 
 module.exports = router;

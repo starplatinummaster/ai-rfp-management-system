@@ -14,6 +14,7 @@ router.delete('/:id', rfpController.deleteRFP);
 router.post('/send', rfpController.sendRFP);
 router.get('/:id/vendors', rfpController.getRFPVendors);
 router.get('/:id/proposals', rfpController.getRFPProposals);
+router.get('/:id/proposals/archived', rfpController.getArchivedProposals);
 router.get('/:id/compare', rfpController.compareProposals);
 
 module.exports = router;

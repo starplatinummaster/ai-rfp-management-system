@@ -104,6 +104,21 @@ class ProposalController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async reprocessAllForRFP(req, res) {
+    try {
+      const { rfpId } = req.params;
+      console.log('=== REPROCESS ALL ENDPOINT HIT ===');
+      console.log('RFP ID:', rfpId);
+      const results = await proposalService.reprocessAllForRFP(rfpId);
+      console.log('Reprocess results:', results);
+      console.log('==================================');
+      res.json(results);
+    } catch (error) {
+      console.error('Reprocess error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new ProposalController();

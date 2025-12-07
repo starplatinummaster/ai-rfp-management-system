@@ -19,6 +19,7 @@ export const rfpAPI = {
   send: (rfpId, vendorIds) => api.post('/rfps/send', { rfpId, vendorIds }),
   getVendors: (id) => api.get(`/rfps/${id}/vendors`),
   getProposals: (id) => api.get(`/rfps/${id}/proposals`),
+  getArchivedProposals: (id) => api.get(`/rfps/${id}/proposals/archived`),
   compare: (id) => api.get(`/rfps/${id}/compare`),
 };
 

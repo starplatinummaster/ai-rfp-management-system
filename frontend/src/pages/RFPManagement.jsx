@@ -11,6 +11,7 @@ const RFPManagement = () => {
   const [vendors, setVendors] = useState([]);
   const [selectedRFP, setSelectedRFP] = useState(null);
   const [selectedVendors, setSelectedVendors] = useState([]);
+  const [editingRFP, setEditingRFP] = useState(null);
   const [loading, setLoading] = useState(false);
   const sendSectionRef = useRef(null);
 
@@ -41,10 +42,36 @@ const RFPManagement = () => {
     setRfps([newRFP, ...rfps]);
   };
 
-  const handleSelectRFP = (rfp) => {
+  const handleRFPUpdated = (updatedRFP) => {
+    setRfps(rfps.map(r => r.id === updatedRFP.id ? updatedRFP : r));
+    setEditingRFP(null);
+    setSelectedRFP(null);
+    // Reload RFPs to get fresh data
+    loadRFPs();
+  };
+
+  const handleEditRFP = (rfp) => {
+    setEditingRFP(rfp);
+    setSelectedRFP(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectRFP = async (rfp) => {
     console.log('handleSelectRFP called with:', rfp);
     setSelectedRFP(rfp);
     setSelectedVendors([]);
+    
+    // Fetch vendors who already received this RFP
+    try {
+      const response = await rfpAPI.getVendors(rfp.id);
+      const sentVendorIds = response.data.map(v => v.vendor_id);
+      // Store sent vendor IDs in the RFP object
+      rfp.sentVendorIds = sentVendorIds;
+      setSelectedRFP({...rfp});
+    } catch (error) {
+      console.error('Failed to load sent vendors:', error);
+    }
+    
     setTimeout(() => {
       sendSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -85,13 +112,22 @@ const RFPManagement = () => {
         <p className="text-gray-600">Create and manage your RFPs</p>
       </div>
 
-      {/* Create RFP */}
-      <RFPCreator onRFPCreated={handleRFPCreated} />
+      {/* Create/Edit RFP */}
+      <RFPCreator 
+        onRFPCreated={handleRFPCreated}
+        onRFPUpdated={handleRFPUpdated}
+        editingRFP={editingRFP}
+        onCancelEdit={() => setEditingRFP(null)}
+      />
 
       {/* RFP List */}
       <div>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Your RFPs</h2>
-        <RFPList rfps={rfps} onSelectRFP={handleSelectRFP} />
+        <RFPList 
+          rfps={rfps} 
+          onSelectRFP={handleSelectRFP}
+          onEdit={handleEditRFP}
+        />
       </div>
 
       {/* Send RFP Section */}
@@ -109,6 +145,7 @@ const RFPManagement = () => {
             vendors={vendors}
             onSelectVendor={handleSelectVendor}
             selectedVendors={selectedVendors}
+            sentVendorIds={selectedRFP.sentVendorIds || []}
           />
 
           <div className="mt-6 flex gap-4">
