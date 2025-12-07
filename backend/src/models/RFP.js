@@ -84,7 +84,12 @@ class RFP {
   }
 
   async getProposals() {
-    const result = await pool.query('SELECT * FROM proposals WHERE rfp_id = $1', [this.id]);
+    const result = await pool.query(`
+      SELECT p.*, v.name as vendor_name 
+      FROM proposals p 
+      JOIN vendors v ON p.vendor_id = v.id 
+      WHERE p.rfp_id = $1
+    `, [this.id]);
     return result.rows;
   }
 }

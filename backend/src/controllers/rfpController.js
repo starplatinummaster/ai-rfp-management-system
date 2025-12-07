@@ -112,10 +112,12 @@ class RFPController {
   async compareProposals(req, res) {
     try {
       const { id } = req.params;
+      console.log('Comparing proposals for RFP:', id);
       const comparison = await rfpService.compareProposals(id);
       res.json(comparison);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('Controller error:', error.message);
+      res.status(500).json({ error: error.message, details: error.stack });
     }
   }
 }

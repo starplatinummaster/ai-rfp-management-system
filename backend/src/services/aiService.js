@@ -120,9 +120,39 @@ Return this JSON:
   }
 
   async compareProposals(proposals, rfpRequirements) {
+    // Clean proposal data for serialization
+    const cleanProposals = proposals.map(p => {
+      const safeParseJSON = (data) => {
+        if (!data) return {};
+        if (typeof data === 'object') return data;
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          return {};
+        }
+      };
+
+      return {
+        id: p.id,
+        vendor_id: p.vendor_id,
+        vendor_name: p.vendor_name || 'Unknown Vendor',
+        pricing: safeParseJSON(p.pricing),
+        timeline: safeParseJSON(p.timeline),
+        terms: safeParseJSON(p.terms),
+        specifications: safeParseJSON(p.specifications)
+      };
+    });
+
+    let proposalsJSON;
+    try {
+      proposalsJSON = JSON.stringify(cleanProposals);
+    } catch (error) {
+      throw new Error(`Failed to serialize proposals: ${error.message}`);
+    }
+
     const prompt = `Compare proposals and recommend best one. Return ONLY valid JSON.
 
-Proposals: ${JSON.stringify(proposals)}
+Proposals: ${proposalsJSON}
 
 Return this JSON:
 {

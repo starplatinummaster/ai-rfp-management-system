@@ -95,18 +95,40 @@ class RFPService {
   }
 
   async compareProposals(rfpId) {
-    const rfp = await RFP.findById(rfpId);
-    if (!rfp) throw new Error('RFP not found');
-    
-    const proposals = await rfp.getProposals();
-    const requirements = JSON.parse(rfp.structured_requirements);
-    
-    if (proposals.length === 0) {
-      throw new Error('No proposals found for comparison');
-    }
+    try {
+      const rfp = await RFP.findById(rfpId);
+      if (!rfp) throw new Error('RFP not found');
+      
+      const proposals = await rfp.getProposals();
+      console.log('Proposals fetched:', proposals.length);
+      
+      if (proposals.length === 0) {
+        return {
+          summary: 'No proposals have been received yet for this RFP.',
+          recommendation: null,
+          rankings: [],
+          proposals: []
+        };
+      }
 
-    const comparison = await aiService.compareProposals(proposals, requirements);
-    return comparison;
+      let requirements;
+      try {
+        requirements = typeof rfp.structured_requirements === 'string' 
+          ? JSON.parse(rfp.structured_requirements) 
+          : rfp.structured_requirements;
+      } catch (e) {
+        console.error('Failed to parse requirements:', e);
+        requirements = {};
+      }
+
+      const comparison = await aiService.compareProposals(proposals, requirements);
+      comparison.proposals = proposals;
+      return comparison;
+    } catch (error) {
+      console.error('Error in compareProposals:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
   }
 }
 

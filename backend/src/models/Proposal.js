@@ -42,7 +42,7 @@ class Proposal {
   async update(proposalData) {
     const { structured_proposal, ai_scores, processing_status } = proposalData;
     const result = await pool.query(
-      'UPDATE proposals SET structured_proposal = $1, ai_scores = $2, processing_status = $3, processed_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *',
+      'UPDATE proposals SET structured_proposal = $1, ai_scores = $2, processing_status = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *',
       [structured_proposal, ai_scores, processing_status, this.id]
     );
     Object.assign(this, result.rows[0]);

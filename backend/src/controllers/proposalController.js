@@ -13,6 +13,12 @@ class ProposalController {
 
       const proposalData = { rfp_id, vendor_id, raw_email_content, email_subject };
       const proposal = await proposalService.createProposal(proposalData);
+      
+      // Auto-process with AI in background
+      proposalService.processProposal(proposal.id).catch(error => {
+        console.error('Background AI processing failed:', error);
+      });
+      
       res.status(201).json(proposal);
     } catch (error) {
       res.status(500).json({ error: error.message });

@@ -23,8 +23,17 @@ class ProposalService {
     if (!rfp) throw new Error('RFP not found');
 
     try {
+      // Parse requirements safely
+      let requirements;
+      if (typeof rfp.structured_requirements === 'string') {
+        requirements = JSON.parse(rfp.structured_requirements);
+      } else if (typeof rfp.structured_requirements === 'object') {
+        requirements = rfp.structured_requirements;
+      } else {
+        requirements = {};
+      }
+
       // Parse proposal using AI
-      const requirements = JSON.parse(rfp.structured_requirements);
       const structuredProposal = await aiService.parseProposal(
         proposal.raw_email_content, 
         requirements
@@ -42,6 +51,7 @@ class ProposalService {
 
       return proposal;
     } catch (error) {
+      console.error('Error processing proposal:', error);
       await proposal.update({ processing_status: 'failed' });
       throw error;
     }
