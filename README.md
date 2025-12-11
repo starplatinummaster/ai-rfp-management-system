@@ -706,7 +706,7 @@ MIT License
 
 ## 👨‍💻 **Author**
 
-Developed as part of SDE Assignment - AI-Powered RFP Management System
+AI-Powered RFP Management System by Somanshu Bhattacharyya
 
 ---
 
